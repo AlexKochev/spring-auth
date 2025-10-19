@@ -1,9 +1,11 @@
 package com.kochev.application.configuration;
 
 import com.kochev.application.authentication.JwtTokenProvider;
+import com.kochev.application.database.RolesRepository;
+import com.kochev.application.database.UsersRepository;
 import com.kochev.application.filters.JwtTokenFilter;
 import com.kochev.application.services.CustomUserDetailsService;
-import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,13 +23,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import static jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 
 @Configuration
+@RequiredArgsConstructor
 public class WebSecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
-
-    public WebSecurityConfig(JwtTokenProvider jwtTokenProvider) {
-        this.jwtTokenProvider = jwtTokenProvider;
-    }
+    private final UsersRepository usersRepository;
+    private final RolesRepository rolesRepository;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -62,6 +63,6 @@ public class WebSecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return new CustomUserDetailsService();
+        return new CustomUserDetailsService(usersRepository, rolesRepository, passwordEncoder());
     }
 }
